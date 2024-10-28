@@ -17,7 +17,7 @@ namespace AWSUploader
             s3FilesUploader = new S3FilesUploader(args);
             if(s3FilesUploader.aWSUploaderArguments.function == "save")
             {
-                s3FilesUploader.aWSUploaderArguments.Save()
+                s3FilesUploader.aWSUploaderArguments.Save();
                 Environment.Exit(0);
             }
         }
