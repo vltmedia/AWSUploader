@@ -34,6 +34,10 @@ The app accepts the following command-line arguments:
 | `--file`            | Local file path to upload                               |
 | `--targetFile`      | Target file path in S3                                  |
 | `--data`            | Path to a JSON file with multiple upload configurations |
+| `--config`          | Path to a JSON file with predefined authentication      |
+| `--function`        | Function to perform (e.g., `save` to save arguments, default: `upload`)    |
+| `--savePath`        | Path to save the configuration file                     |
+
 
 ### Example Usage
 
