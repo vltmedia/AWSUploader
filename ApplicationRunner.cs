@@ -11,6 +11,7 @@ namespace AWSUploader
     public class ApplicationRunner
     {
         public S3FilesUploader s3FilesUploader = null;
+        public bool shouldExit = false;
        
         public ApplicationRunner(string[] args)
         {
@@ -18,6 +19,7 @@ namespace AWSUploader
             if(s3FilesUploader.aWSUploaderArguments.function == "save")
             {
                 s3FilesUploader.aWSUploaderArguments.Save();
+                shouldExit = true;
                 Environment.Exit(0);
             }
         }

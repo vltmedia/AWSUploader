@@ -16,6 +16,7 @@ namespace AWSUploader
         public string accessKey = "";
         public string secretKey = "";
         public Amazon.RegionEndpoint region = Amazon.RegionEndpoint.USEast1;
+        public string _region = "";
         public string localDirectory = "";
         public string localFile = "";
         public string targetDirectory = "";
@@ -25,11 +26,15 @@ namespace AWSUploader
         public string function = "upload";
         public DataItemsToUpload dataToUpload;
         public bool isPublic = true;
+        public AWSUploaderArguments()
+        {
 
+        }
         /// <summary>
         /// Initializes a new instance of the <see cref="AWSUploaderArguments"/> class.
         /// </summary>
         /// <param name="args">The command-line arguments.</param>
+        /// 
         public AWSUploaderArguments(string[] args)
         {
             for (int i = 0; i < args.Length; i++)
@@ -45,6 +50,7 @@ namespace AWSUploader
                         break;
                     case "--region":
                         region = ParseRegion(args[++i]);
+                        _region = args[++i];
                         break;
                     case "--function":
                         function = args[++i];
@@ -89,6 +95,7 @@ namespace AWSUploader
 
                     case "--help":
                         Console.WriteLine("Usage: AWSUploader --accesskey <accesskey> --secretkey <secretkey> --region <region> --directory <localDirectory> --targetDirectory <targetDirectory> --bucketName <bucketName> [--public | --private] [--file <localFile> --targetFile <targetFile>]");
+                        Environment.Exit(0);
                         return;
                     default:
                         Console.WriteLine("Unknown argument: " + args[i]);
@@ -101,6 +108,7 @@ namespace AWSUploader
         private void Load(string configString)
         {
             AWSUploaderArguments config = JsonConvert.DeserializeObject<AWSUploaderArguments>(File.ReadAllText(configString));
+            config.region = ParseRegion(config._region);
             if (config != null)
             {
                 Clone(config);
@@ -130,6 +138,9 @@ namespace AWSUploader
             targetFile = config.targetFile;
             bucketName = config.bucketName;
             isPublic = config.isPublic;
+            dataToUpload = config.dataToUpload;
+            uploadType = config.uploadType;
+            _region = config._region;
         }
 
         /// <summary>
@@ -137,6 +148,39 @@ namespace AWSUploader
         /// </summary>
         /// <param name="region_">The region string.</param>
         /// <returns>The parsed <see cref="Amazon.RegionEndpoint"/>.</returns>
+        /// 
+        public string CommandLineArguments()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"--accesskey {accessKey} ");
+            sb.Append($"--secretkey {secretKey} ");
+            sb.Append($"--region {region} ");
+            sb.Append($"--function {function} ");
+            sb.Append($"--bucketName {bucketName} ");
+            if (uploadType == UploadType.Directory)
+            {
+                sb.Append($"--directory \"{localDirectory}\" ");
+                sb.Append($"--targetDirectory \"{targetDirectory}\" ");
+            }
+            else if (uploadType == UploadType.File)
+            {
+                sb.Append($"--file \"{localFile}\" ");
+                sb.Append($"--targetFile \"{targetFile}\" ");
+            }
+            else if (uploadType == UploadType.Multiple)
+            {
+                sb.Append($"--data \"{savePath}\" ");
+            }
+            if (isPublic)
+            {
+                sb.Append($"--public ");
+            }
+            else
+            {
+                sb.Append($"--private ");
+            }
+            return sb.ToString();
+        }
         public Amazon.RegionEndpoint ParseRegion(string region_ = "us-east-2")
         {
             switch (region_)
@@ -187,6 +231,99 @@ namespace AWSUploader
                     return Amazon.RegionEndpoint.USEast1;
             }
         }
+        public string ParseRegion(Amazon.RegionEndpoint region_)
+        {
+
+            if (region_ == Amazon.RegionEndpoint.USEast1)
+            {
+                return "us-east-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.USEast2)
+            {
+                return "us-east-2";
+            }
+            else if (region_ == Amazon.RegionEndpoint.USWest1)
+            {
+                return "us-west-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.USWest2)
+            {
+                return "us-west-2";
+            }
+            else if (region_ == Amazon.RegionEndpoint.APEast1)
+            {
+                return "ap-east-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.APSouth1)
+            {
+                return "ap-south-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.APSoutheast1)
+            {
+                return "ap-southeast-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.APSoutheast2)
+            {
+                return "ap-southeast-2";
+            }
+            else if (region_ == Amazon.RegionEndpoint.APNortheast1)
+            {
+                return "ap-northeast-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.APNortheast2)
+            {
+                return "ap-northeast-2";
+            }
+            else if (region_ == Amazon.RegionEndpoint.CACentral1)
+            {
+                return "ca-central-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.CNNorth1)
+            {
+                return "cn-north-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.CNNorthWest1)
+            {
+                return "cn-northwest-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.EUCentral1)
+            {
+                return "eu-central-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.EUWest1)
+            {
+                return "eu-west-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.EUWest2)
+            {
+                return "eu-west-2";
+            }
+            else if (region_ == Amazon.RegionEndpoint.EUWest3)
+            {
+                return "eu-west-3";
+            }
+            else if (region_ == Amazon.RegionEndpoint.EUNorth1)
+            {
+                return "eu-north-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.SAEast1)
+            {
+                return "sa-east-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.USGovCloudEast1)
+            {
+                return "us-gov-east-1";
+            }
+            else if (region_ == Amazon.RegionEndpoint.USGovCloudWest1)
+            {
+                return "us-gov-west-1";
+            }
+            else
+            {
+                return "us-east-1";
+            }
+
+        }
     }
 
     [System.Serializable]
@@ -220,6 +357,7 @@ namespace AWSUploader
                 Console.WriteLine($"Error saving data: {ex.Message}");
             }
         }
+
 
         /// <summary>
         /// Loads an instance from a file.
